@@ -1,0 +1,19 @@
+Version 03:
+- while seeking all midi events other than on/off (e.g. program change, pan, volume) are processed.
+- events are processed in strict overall time order during skip
+- tracks are reset only when seeking backwards
+- (GUI) when saving use the same gain value as for playback (previously no gain was set).
+- (GUI) avoid exception when cancelling selection of a midi file
+- (GUI) all possible buffer sizes (64 - 8192) can be selected.
+- (GUI) when driver initialization fails show "---" as text in the driver selection button.
+
+Version 02:
+- Changed loading of libfluidsynth so that it works on both Win32 and Linux.
+- The libfluidsynth library is only loaded locally from the program directory.
+- Added driver selection (for Linux, defaults to pulseaudio, for Win32 to dsound).
+- Added buffer size setting. Slower machines need more buffer space (default 1024 bytes, 2 buffers)
+- Added reverb/chorus settings, selection of reverb models.
+- library intl.dll appeared to be needed on a clean Win32 (without GTK+ installed). Added to Win32 distribution.
+
+Version 01:
+Initial Release
