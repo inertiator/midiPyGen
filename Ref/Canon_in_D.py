@@ -6,12 +6,8 @@
 ###################################################################################
 
 #Import the libraries. We're taking in our Midi generator (MIDIUtil), and our MIDI player ()
-from MIDIUtil_Base.midiutil.MidiFile3 import MIDIFile
-from Utilities.BasicFunctions import * 
+from Utilities.MIDIUtil.MidiFile import MIDIFile
 from Utilities.GrandStaffFunctions import * 
-
-#Import pygame for midi playback
-import pygame
 
 #Import time and system libraries
 import datetime, time, os, sys
@@ -20,8 +16,6 @@ import datetime, time, os, sys
 print("You are running Python", sys.version)
 print("Python is located in: ", sys.path[1])
 
-#Initialize Pygame
-pygame.init()
 
 ##########################################################################
 #Develop the grand staff
@@ -44,8 +38,7 @@ Song_Tonality = "Major"
 Song_Diatonic_Chromatics = [0,2,4,5,7,9,11] #In chromatic indices, this is the Major Scale sequence
 Song_Diatonic_Degrees = [0,1,2,3,4,5,6] #Seven degrees in standard music
 grand_staff = create_grand_staff();
-[Song_Diatonic_List,Song_Octave_List,Song_Diatonic_Range,Song_Diatonic_List_Indices] = create_diatonic_map(grand_staff,Song_LowestTonic,Song_Diatonic_Chromatics)
-
+[Song_Diatonic_List,Song_Octave_List,Song_Diatonic_Range] = create_diatonic_map(grand_staff,Song_LowestTonic,Song_Diatonic_Chromatics)
 import pdb
 pdb.set_trace()
 
@@ -62,14 +55,15 @@ class MotifBasics(object):
 
 
 # Alrighty, just to test how this works, let's just hard code stuff in now
-CanonD = MIDIFile(1) #Just one track
+CanonD = MIDIFile(1,adjust_origin=True) #Just one track
 track = 0
 time = 0
+channel = 0
 totalbeats = 1024
-filename = "Output_MIDI\CanonD.mid"
+filename = "OutputMIDI\CanonD.mid"
 CanonD.addTrackName(track,time,"Sample Track")
 CanonD.addTempo(track,time, 60) #Canon in D is 60 BPM
-
+CanonD.addProgramChange(track,channel,time,58)
 Bass_Motif = ['D2','A1','B1','F#1','G1','D1','G1','A1']
 
 # Add a note. addNote expects the following information:
@@ -136,23 +130,5 @@ for _ in range(4):
 midi_binfile = open(filename, 'wb')
 CanonD.writeFile(midi_binfile)
 midi_binfile.close()
-
-count_down(5,'Opening file using Pygame')
-music_file = filename
-freq = 44100    # audio CD quality
-bitsize = -16   # unsigned 16 bit
-channels = 2    # 1 is mono, 2 is stereo
-buffer = 1024    # number of samples
-pygame.mixer.init(freq, bitsize, channels, buffer)
-
-try:
-    play_music(music_file,-1,0)
-except KeyboardInterrupt:
-    # if user hits Ctrl/C then exit
-    # (works only in console mode)
-    pygame.mixer.music.fadeout(1000)
-    pygame.mixer.music.stop()
-    raise SystemExit
-
 
 
