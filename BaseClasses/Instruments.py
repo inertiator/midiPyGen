@@ -170,7 +170,7 @@ class Tuba(Instruments):
         self.tonality = tonality
         super(Tuba,self).checkTonality()
         
-        self.lowestNote = 'G0'
+        self.lowestNote = 'F0'
         self.highestNote = 'F3'
         self.type = 'Brass'
         self.role = 'Bass'

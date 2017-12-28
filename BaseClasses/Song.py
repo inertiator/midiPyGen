@@ -52,7 +52,6 @@ class Song(object):
         
         duration = self.timeMeter.numBeatsPerMeasure
         progTime = ProgressionTime(start, measures, duration, velocity, self.timeMeter)
-     
          
         ch = 0
         
