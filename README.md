@@ -1,5 +1,5 @@
-# midi_bot
-MidiBot is intended to be a Python-MIDI interface and songwriter with capability of expansion.
+# midiPyGen
+midiPyGen is intended to be a Python-MIDI interface and songwriter with capability of expansion.
 Currently development is being made in the "Backbone" branch.
 
 ## Libraries Needed
@@ -22,7 +22,7 @@ For this first pass, only a single method is completed. This method takes in a c
 3) Variation of Key, Time Signature, and Mode (Major or Minor)
 
 ## How to Run
-runMidiBot.py should be the only input needed to run.
+runMidiPyGen.py should be the only input needed to run.
 
 ## Plans
 MidiBot aims to be a constantly growing system of different capabilities.
