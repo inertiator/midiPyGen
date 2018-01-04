@@ -4,23 +4,22 @@ from BaseClasses.Song import Song
 from BaseClasses.MidiPyGen import MidiPyGen
 from BaseClasses.Ensemble import Ensemble
 
-date = '12_28_17'
-keySig = 'G'
-tonalMode = 'Major'
+date = '1_4_2018'
+keySig = 'F#'
+tonalMode = 'Minor'
 tonal = Tonality(keySig,tonalMode)
-numBeats = 3
+numBeats = 4
 beat = 4
 tempo = 120
 timeMeter = TimeMeter(numBeatsPerMeasure = numBeats, beat = beat, tempo = tempo)
 
-#Canon in D works for JoJoQuartet but not JoJoTrio
 
-ensem = 'JoJoQuartet'
+ensem = 'SATB'
 ensemble = Ensemble(ensem)
 
 song = Song(ensemble,timeMeter,tonal)
 
-cadence = 'Canon'
+cadence = 'Radioactive'
 #cadence = 'NewSong'
 #Fix this!
 title = date + '_' + ensem + '_' + cadence + '_' + keySig + '_' + tonalMode
@@ -28,3 +27,9 @@ song.addSingleCadenceAcc(cadence)
 botMidi = MidiPyGen(song,title)
 botMidi.runCode()
 botMidi.writeMidiFile()
+
+print('\nFinal chord progression:')
+for instKey in song.instDict:
+    print('Instrument: ' + instKey)
+    print(song.instDict[instKey].chordProg)
+    print(song.instDict[instKey].chordProgKeys)

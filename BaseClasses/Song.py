@@ -25,6 +25,7 @@ class Song(object):
         self.initializeInstTimeMeter()
         for instKey in self.instDict:
             self.instDict[instKey].chordProg = []
+            self.instDict[instKey].chordProgKeys = []
             self.instDict[instKey].timeArr = []
             self.instDict[instKey].durArr = []
             self.instDict[instKey].velArr = []
@@ -43,12 +44,14 @@ class Song(object):
         
     
     def addSingleCadenceAcc(self, cadence, start = 0, velocity = 70):
-        chordProg = ChordProgression(cadence)
+        chordProg = ChordProgression(cadence, self.instDict)
         measures = len(chordProg.prog)
-        chordProg.harmonizeTriadParts(self.instDict)
+        chordProg.harmonizeTriadParts()
         for instKey in self.instDict:
             for part in chordProg.instPartsVal[instKey]:
                 self.instDict[instKey].chordProg.append(part)
+                chordProgKey = findKey(self.instDict[instKey].grandStaff,part)
+                self.instDict[instKey].chordProgKeys.append(chordProgKey)
         
         duration = self.timeMeter.numBeatsPerMeasure
         progTime = ProgressionTime(start, measures, duration, velocity, self.timeMeter)

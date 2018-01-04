@@ -129,6 +129,7 @@ class Flute(Instruments):
         self.type = 'Woodwind'
         self.role = 'Solo'
         self.wind = True
+        self.bass = False
         self.track = track
         self.program = 73
 
@@ -144,6 +145,7 @@ class Clarinet(Instruments):
         self.type = 'Woodwind'
         self.role = 'Solo'
         self.wind = True
+        self.bass = False
         self.track = track
         self.program = 71
 
@@ -160,11 +162,28 @@ class Trumpet(Instruments):
         self.type = 'Brass'
         self.role = 'Solo'
         self.wind = True
+        self.bass = False
         self.track = track
         self.program = 56
       
         super(Trumpet,self).initializeDiatonics()
+        
+class Violin(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Violin,self).checkTonality()
+        
+        self.lowestNote = 'G2'
+        self.highestNote = 'A5'
+        self.type = 'Strings'
+        self.role = 'Solo'
+        self.wind = False
+        self.bass = False
+        self.track = track
+        self.program = 41
       
+        super(Violin,self).initializeDiatonics()
+        
 class Tuba(Instruments):
     def __init__(self, tonality=None, track=0):
         self.tonality = tonality
@@ -175,7 +194,72 @@ class Tuba(Instruments):
         self.type = 'Brass'
         self.role = 'Bass'
         self.wind = True
+        self.bass = True
         self.track = track
         self.program = 58
         
         super(Tuba,self).initializeDiatonics()
+
+class Soprano(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Soprano,self).checkTonality()
+        
+        self.lowestNote = 'C3'
+        self.highestNote = 'B4'
+        self.type = 'Voice'
+        self.role = 'Solo'
+        self.wind = True
+        self.bass = False
+        self.track = track
+        self.program = 54
+      
+        super(Soprano,self).initializeDiatonics()
+
+class Alto(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Alto,self).checkTonality()
+        
+        self.lowestNote = 'G2'
+        self.highestNote = 'F4'
+        self.type = 'Voice'
+        self.role = 'Solo'
+        self.wind = True
+        self.bass = False
+        self.track = track
+        self.program = 54
+      
+        super(Alto,self).initializeDiatonics()
+        
+class Tenor(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Tenor,self).checkTonality()
+        
+        self.lowestNote = 'C2'
+        self.highestNote = 'A3'
+        self.type = 'Voice'
+        self.role = 'Solo'
+        self.wind = True
+        self.bass = False
+        self.track = track
+        self.program = 54
+      
+        super(Tenor,self).initializeDiatonics()
+        
+class Bass(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Bass,self).checkTonality()
+        
+        self.lowestNote = 'C1'
+        self.highestNote = 'E3'
+        self.type = 'Voice'
+        self.role = 'Solo'
+        self.wind = True
+        self.bass = True
+        self.track = track
+        self.program = 54
+      
+        super(Bass,self).initializeDiatonics()
