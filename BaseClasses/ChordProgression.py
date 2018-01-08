@@ -245,10 +245,8 @@ class ChordProgression(object):
                 previousPartVal = self.instPartsVal[instKey][iChord-1]
                 previousPartIdx = min(range(len(self.instDict[instKey].diatonicListVal)), key=lambda i: abs(self.instDict[instKey].diatonicListVal[i]-previousPartVal))
                 previousPartNum = self.instDict[instKey].diatonicListNum[previousPartIdx]
-                #BORROWED CHORDS ARE NOT WORKING!!!!!!
                 randDiatIdx = random.randint(0,len(diatListInv)-1)
                 diat = diatListInv[randDiatIdx]
-                #print('For instrument: ' + instKey + ', arriving at diatonic: ' + str(diat))
                 dChordNum = diat - previousPartNum  
                 if dChordNum < -self.diatTol:
                     dChordNum = 7 + dChordNum
