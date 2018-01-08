@@ -2,11 +2,23 @@ from Utilities.BasicFunctions import findKey
 from BaseClasses.Tonality import Tonality
 
 class Instruments(object):
-    def __init__(self, tonality=None, lowestNote = 'C-2', highestNote = 'G8', type = 'Keyboard', role = 'Accompinament', wind = False, track = 0, program = 0):
-        
+    def __init__(self, tonality=None, lowestNote = 'C-2', highestNote = 'G8', type = 'Keyboard', role = 'Accompaniment', wind = False, track = 0, program = 0):
+        '''
+        Every song of practically every genre is made is made up of a tonality.
+        This class is inherited by the instruments and forms the basis of their diatonic range.
+        ------------------------------------------------
+        INPUT         TYPE      DESCRIPTION
+        ------------------------------------------------
+        tonality      object     Key of this song in (ABCDEFG and in Sharps or Flats). 
+        lowestNote    string
+        highestNote   string    Type of mode of this song, e.g. Major, Minor, Dorian, etc
+        type
+        role
+        wind
+        bass
+        '''
         self.tonality = tonality
-        self.checkTonality()
-            
+        self.checkTonality() 
         self.lowestNote = lowestNote
         self.highestNote = highestNote
         self.tonality = tonality 
@@ -31,6 +43,11 @@ class Instruments(object):
         self.maxDiatonicListVal = max(self.diatonicListVal)
 
     def createGrandStaff(self):
+        '''
+        This function creates a grand staff (also seen in Instruments))
+        Grand Staff creates a dictionary for a value for each pitch in the 128 available MIDI values 
+        Octaves are represented by numbers after noteLetters, e.g. C0, E4
+        '''
         self.grandStaff = {};
         stfCtr = 0
         noteLetters = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
@@ -45,6 +62,9 @@ class Instruments(object):
                     break        
     
     def findLowestTonic(self):
+        '''
+        Given an instrument (or entire range if inside Tonality.py), find the lowest tonic within its range
+        '''
         lowOct = -2
         keySig = self.tonality.keySig
         absLowestTonicVal = self.grandStaff[keySig + str(lowOct)]
@@ -56,6 +76,14 @@ class Instruments(object):
         self.lowestTonic = findKey(self.grandStaff,lowestTonicVal)
                     
     def createDiatonicMap(self):
+        '''
+        This function takes the grand staff and combines it with the highest and lowest values.
+        The final products are:
+        self.diatonicListVal: A list of the entire range of diatonic chromatic values (absolute MIDI pitches) for this instrument (or in grand total if inside Tonality.py)
+        self.diatonicListNum: A list of the entire range of diatonic degree numbers for this instrument (or in grand total if inside Tonality.py)
+        self.diatonicRangeVal: Dictionary of the diatonic chromatic values with the keySignature as keys (rarely Used)
+        self.diatonicRangeNum: Dictionary of the diatonic degree numbers with the keySignature as keys (rarely Used)
+        '''
         self.lowestTonicVal = self.grandStaff[self.lowestTonic]
         self.diatonicRangeVal = {}
         self.diatonicListVal = []
@@ -141,7 +169,7 @@ class Clarinet(Instruments):
         super(Clarinet,self).checkTonality()
 
         self.lowestNote = 'E2'
-        self.highestNote = 'C6'
+        self.highestNote = 'A5'
         self.type = 'Woodwind'
         self.role = 'Solo'
         self.wind = True
@@ -180,9 +208,58 @@ class Violin(Instruments):
         self.wind = False
         self.bass = False
         self.track = track
-        self.program = 41
+        self.program = 40
       
         super(Violin,self).initializeDiatonics()
+
+        
+class Viola(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Viola,self).checkTonality()
+        
+        self.lowestNote = 'C2'
+        self.highestNote = 'E5'
+        self.type = 'Strings'
+        self.role = 'Solo'
+        self.wind = False
+        self.bass = False
+        self.track = track
+        self.program = 41
+      
+        super(Viola,self).initializeDiatonics()
+        
+class Cello(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(Cello,self).checkTonality()
+        
+        self.lowestNote = 'C1'
+        self.highestNote = 'C5'
+        self.type = 'Strings'
+        self.role = 'Solo'
+        self.wind = False
+        self.bass = False
+        self.track = track
+        self.program = 42
+      
+        super(Cello,self).initializeDiatonics()
+
+class DoubleBass(Instruments):
+    def __init__(self, tonality=None, track=0):
+        self.tonality = tonality
+        super(DoubleBass,self).checkTonality()
+        
+        self.lowestNote = 'C0'
+        self.highestNote = 'C4'
+        self.type = 'Strings'
+        self.role = 'Solo'
+        self.wind = False
+        self.bass = True
+        self.track = track
+        self.program = 43
+      
+        super(DoubleBass,self).initializeDiatonics()
         
 class Tuba(Instruments):
     def __init__(self, tonality=None, track=0):

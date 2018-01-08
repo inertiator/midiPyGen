@@ -17,6 +17,11 @@ class Ensemble(object):
             self.instClassList = ['Soprano', 'Alto', 'Tenor', 'Bass']
             self.numPartsList = [1,1,1,1]
             self.Name = ensemble
+        elif ensemble == 'JoJoOctet':
+            self.instClassList = ['Flute','Clarinet','Trumpet','Tuba','Violin','Viola','Cello','DoubleBass']
+            self.instrumentList = []
+            for inst in self.instClassList:
+                self.instrumentList.append(inst.lower())
         else:
             raise ValueError('ERROR: Ensemble \'' + ensemble + '\' not recognized.')
         self.numTracks = len(self.instrumentList)

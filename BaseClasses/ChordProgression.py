@@ -1,4 +1,6 @@
 from Utilities.BasicFunctions import findKey
+from BaseClasses.Tonality import Tonality
+
 from collections import Counter
 from collections import defaultdict
 from copy import deepcopy
@@ -6,7 +8,7 @@ import random
 import math
 import operator
 class ChordProgression(object):
-    def __init__(self, cadence, instDict):
+    def __init__(self, cadence, tonality, instDict):
         self.cadence = cadence
         self.diatTol = 3
         self.valTol = 5
@@ -14,72 +16,98 @@ class ChordProgression(object):
         self.dChordNumTotTol = 5
         self.dChordValFCtol = 5
         self.rangeTol = 3
-        
         self.instDict = instDict
+        self.tonality = tonality
+        self.inv = []
+        self.prog = []
+        self.checkForCadence()
+        if len(self.prog) == 0:
+            self.prog = self.cadence
+        if len(self.inv) == 0:
+            for i in range(len(self.prog)):
+                self.inv.append(None)
+    
+    def checkForCadence(self):
         if self.cadence == 'Plagal':
-            self.prog = [4,1]
+            self.prog = ['4','1']
             self.inv = ['4/6',None]
         if self.cadence == 'Deceptive':
-            self.prog = [5,6]
-            self.inv = [None, None]
-        if self.cadence == 'Simple':
-            self.prog = [1,4,5,1]
-            self.inv = [None,'3','3',None]
-        if self.cadence == 'NewSong':
-            self.prog = [6,1,5,4,6,1,5,4]
-            self.inv = [None,None,None,None,None,None,None,None]
-        if self.cadence == 'Canon':
-            self.prog = [1,5,6,3,4,1,4,5,1]
-            self.inv = [None,None,None,None,None,None,None,None,None]
+            self.prog = ['5','6']
         if self.cadence == 'CanonX2':
-            self.prog = [1,5,6,3,4,1,4,5,1,5,6,3,4,1,4,5,1]
-            self.inv = []
-            for i in range(len(self.prog)):
-                self.inv.append(None)
-        if self.cadence == 'IfIAintGotYou':
-            self.prog = [1,1,6,6,2,2,5,5,1,1,6,6,2,2,5,5,1,2,3,2,1,2,3,2,1,2,3,2,1,2,3,3,4,4,3,3,2,2,1,1,4,4,3,3,2,2,1,1]
-            self.inv = []
-            for i in range(len(self.prog)):
-                self.inv.append(None)
+            #Prefer Major Key
+            self.prog = ['1','5','6','3','4','1','4','5','1','5','6','3','4','1','4','5','1']
         if self.cadence == 'Radioactive':
-            self.prog = [4,6,3,7]
+            #Prefer Minor Key
+            self.prog = ['1','3','7','7B5']
             self.prog = 8*self.prog
-            self.prog.append(4)
-            self.inv = []
-            for i in range(len(self.prog)):
-                self.inv.append(None)
-                
+            self.prog.append('1')
+        if self.cadence == 'ForgetYou':
+            #Prefer Major Key
+            self.prog = ['1','5B5','4','1']
+            self.prog = 4*self.prog
+            self.prog.append('1')
+        if self.cadence == 'Blues':
+            #Prefer Major Key
+            self.prog = ['5B4','5B4B4','5B4','5B4B4']
+            self.prog = 4*self.prog
+        if self.cadence == 'BluesTestABA':
+            #Prefer Major Key
+            self.prog = []
+            self.a = ['5B4','5B4B4','5B4','5B4B4','5B4','5B4B4','5B4','5B4B4']
+            self.b = ['4B4','5B4B4','4B4','5B4B4','4B4','5B5','5S','5S']
+            self.prog = self.a + self.b + self.a
+            self.prog.append('1')  
+        if self.cadence == 'Gymnopedie':
+            #Prefer Major Key
+            self.prog = ['4S','1S']
+            self.prog = 8*self.prog     
+        if self.cadence == 'Funky':
+            #Prefer Minor Key
+            self.prog = ['1S','7B5']
+            self.prog = 8*self.prog  
+        if self.cadence == 'Ending':
+            #Prefer Major Key
+            self.prog = ['1','5B4','4','4B4B4B4','4B4','1']
+
     def loopDiatonic(self,i):
         if i > 7:
             return i - 7
         else:
             return i
     
-    def inversionPicker(self, diatList, inversion = '4/6' ):
-        if inversion == '4/6':
-            order = [2,0,1]
-        elif inversion == '3':
-            order = [1,2,0]
-        elif inversion == None:
-            order = [0,1,2]
+    def inversionPicker(self, mod, diatList, inversion):
+        if mod == 'T':
+            if inversion == '4/6':
+                order = [2,0,1]
+            elif inversion == '6':
+                order = [1,2,0]
+            elif inversion == None:
+                order = [0,1,2]
+        elif mod == 'S' or mod == 'B':
+            if inversion == '6/5':
+                order = [1,2,3,0]
+            elif inversion == '4/3':
+                order = [2,3,0,1]
+            elif inversion == '4/2':
+                order = [3,0,1,2]
+            elif inversion == None:
+                order = [0,1,2,3]
         
         diatList = [diatList[i] for i in order]
         return diatList
         
-    def findInstLowestBass(self,bass):
+    def findInstLowestBass(self,instKey,bass):
         iLowestBassVal = 128
         iLowestBassKey = ''
         iLowestBassNum = bass
-        for instKey in self.instDict:
-            for i,val in enumerate(self.instDict[instKey].diatonicListVal):
-                if self.instDict[instKey].diatonicListNum[i] == bass:
-                    if val < iLowestBassVal:
-                        iLowestBassVal = val 
-                        iLowestBassKey = instKey
+        for i,val in enumerate(self.instDict[instKey].diatonicListVal):
+            if self.instDict[instKey].diatonicListNum[i] == bass:
+                if val < iLowestBassVal:
+                    iLowestBassVal = val 
         #FIX IF BASS AND SECOND LOWEST HAVE SAME DIATONIC BASE VAL
         #import pdb
         #pdb.set_trace()
-        return iLowestBassVal, iLowestBassKey, iLowestBassNum
+        return iLowestBassVal, iLowestBassNum
 
     def checkForDuplicates(self,chordList):
         dupleList = [k for k, v in Counter(chordList).items() if v > 1]
@@ -96,54 +124,15 @@ class ChordProgression(object):
         dict = {k:v for k,v in dict.items() if len(v) > 1}
         return hasDuplicates, dict
 
-    def resolveDuplicates(self, dupleDictValues,progNum,progVal,diatListInv, iChord):
-        dupUse = False
-        iDuplicate = 0
-        while dupUse == False:
-            for j in reversed(range(len(self.orderOfRange))):
-                instKey = self.orderOfRange[j]
-                progIdx = self.instDict[instKey].diatonicListVal.index(progVal[instKey])
-                
-                for i,dup in enumerate(dupleDictValues):
-                    if j == dup and dupUse == False:
-                        for iDiat,diat in enumerate(diatListInv):
-                            if diat == progNum[instKey]:
-                                idxDiat = diatListInv.index(diat)
-                                if idxDiat == len(diatListInv) - 1:
-                                    newDiat = diatListInv[idxDiat + 1 - len(diatListInv)]
-                                else:
-                                    newDiat = diatListInv[idxDiat + 1]
-                                dNum = newDiat - progNum[instKey]
-                                if dNum < -self.diatTol:
-                                    dNum = 7 + dNum 
-                                elif dNum > self.diatTol:
-                                    dNum = dNum - 7
-                                    
-                                if iChord == 0:
-                                    progNum[instKey] = self.instDict[instKey].diatonicListNum[progIdx + dNum]
-                                    progVal[instKey] = self.instDict[instKey].diatonicListVal[progIdx + dNum]
-                                    dupUse = True
-                                else:
-                                    tempNewVal = self.instDict[instKey].diatonicListVal[progIdx + dNum]
-                                    dValFirst = tempNewVal - self.instPartsVal[instKey][0]
-                                    if abs(dValFirst) <= self.valTol:
-                                        progNum[instKey] = self.instDict[instKey].diatonicListNum[progIdx + dNum]
-                                        progVal[instKey] = self.instDict[instKey].diatonicListVal[progIdx + dNum]
-                                        dupUse = True   
-            iDuplicate += 1
-            if iDuplicate > 30:
-                print('The previous chord was:')
-                for inst in self.instDict:
-                    print(inst + ': ' + str(self.instPartsNum[inst][iChord-1]))
-                print('The active chord is:')
-                print(diatListInv)
-                print('So far we have:')
-                for inst in progNum:
-                    print(inst + ': ' + str(progNum[inst]))
-                raise ValueError('ERROR: Could not resolve duplicates in: ' + str(diatListInv))
-                
-        return progNum, progVal
-
+    def checkForCloseness(self,chordList):
+        tooClose = False
+        for i in chordList:
+            for k in chordList:
+                if k is not i:
+                    if abs(k - i) == 1:
+                        tooClose = True
+        return tooClose
+        
     def findFitness(self, instDiatList, iChord, diatListInv):
         diatUse = {}
         progVal = {}
@@ -158,8 +147,8 @@ class ChordProgression(object):
             
         for inst,instKey in enumerate(self.orderOfRangeMB):
             previousPartVal = self.instPartsVal[instKey][iChord-1]
-            previousPartNum = self.instPartsNum[instKey][iChord-1]
-            previousPartIdx = self.instDict[instKey].diatonicListVal.index(previousPartVal)
+            previousPartIdx = min(range(len(self.instDict[instKey].diatonicListVal)), key=lambda i: abs(self.instDict[instKey].diatonicListVal[i]-previousPartVal))
+            previousPartNum = self.instDict[instKey].diatonicListNum[previousPartIdx]
             diat = instDiatList[inst]
             dChordNum[inst] = diat - previousPartNum  
             if dChordNum[inst] < -self.diatTol:
@@ -179,10 +168,13 @@ class ChordProgression(object):
         #print(diatUseList)
         #print('Checking for duplicates...')
         hasDuplicates, dupleDict = self.checkForDuplicates(list(progVal.values()))
+        tooCloseSev = self.checkForCloseness(list(progVal.values()))
         for inst,instKey in enumerate(self.orderOfRangeMB):
             if not all(diatUseList) == True:
                 dChordNum[inst] = 99
             if hasDuplicates:
+                dChordNum[inst] = 99
+            if tooCloseSev:
                 dChordNum[inst] = 99
         
             
@@ -245,58 +237,45 @@ class ChordProgression(object):
             diatUse.append(False)
         for inst,instKey in enumerate(self.orderOfRangeMB):
             instUse.append(False)
-            instDiatList.append(0)
+            instDiatList.append(-1)
         iD = 0
         iI = 0
-        while all(diatUse) is False:
+        while all(diatUse) is False and all(instUse) is False:
             for inst,instKey in enumerate(self.orderOfRangeMB):
                 previousPartVal = self.instPartsVal[instKey][iChord-1]
-                previousPartNum = self.instPartsNum[instKey][iChord-1]
-                previousPartIdx = self.instDict[instKey].diatonicListVal.index(previousPartVal)
-                
-                while instUse[inst] is False:
-                    randDiatIdx = random.randint(0,len(diatListInv)-1)
-                    diat = diatListInv[randDiatIdx]
-                    #print('For instrument: ' + instKey + ', arriving at diatonic: ' + str(diat))
-                    dChordNum = diat - previousPartNum  
-                    if dChordNum < -self.diatTol:
-                        dChordNum = 7 + dChordNum
-                    elif dChordNum > self.diatTol:
-                        dChordNum = dChordNum - 7
-                    tempNewVal = self.instDict[instKey].diatonicListVal[previousPartIdx + dChordNum]
-                    tempNewIdx = self.instDict[instKey].diatonicListVal.index(tempNewVal)
-                    if tempNewIdx + self.rangeTol >= len(self.instDict[instKey].diatonicListNum) or tempNewIdx - self.diatTol < 0:
-                        #print('Approaching range limit in instrument: ' + instKey + '! Try another diatonic.')
-                        pass
-                    elif diatUse[randDiatIdx] == False:
-                        diatUse[randDiatIdx] = True
-                        instUse[inst] = True
-                        instDiatList[inst] = diat
-                    iI += 1
-                    if iI > 30:
-                        break
+                previousPartIdx = min(range(len(self.instDict[instKey].diatonicListVal)), key=lambda i: abs(self.instDict[instKey].diatonicListVal[i]-previousPartVal))
+                previousPartNum = self.instDict[instKey].diatonicListNum[previousPartIdx]
+                #BORROWED CHORDS ARE NOT WORKING!!!!!!
+                randDiatIdx = random.randint(0,len(diatListInv)-1)
+                diat = diatListInv[randDiatIdx]
+                #print('For instrument: ' + instKey + ', arriving at diatonic: ' + str(diat))
+                dChordNum = diat - previousPartNum  
+                if dChordNum < -self.diatTol:
+                    dChordNum = 7 + dChordNum
+                elif dChordNum > self.diatTol:
+                    dChordNum = dChordNum - 7
+                tempNewVal = self.instDict[instKey].diatonicListVal[previousPartIdx + dChordNum]
+                tempNewIdx = self.instDict[instKey].diatonicListVal.index(tempNewVal)
+
+                diatUse[randDiatIdx] = True
+                instUse[inst] = True
+                instDiatList[inst] = diat
+                iI += 1
+                if iI > 30:
+                    break
             iD += 1
             if iD > 30:
                 break
         return instDiatList
         
-    def resolveProgression(self, iChord, iLowestBassVal, iLowestBassKey, iLowestBassNum, diatListInv):
+    def resolveProgression(self, iChord, diatListInv):
         #Find halfway diatonic note
-        print('\nNEW CHORD\n')
+        print('\nNEW CHORD:\n')
         print('Currently on chord: ' + str(diatListInv))
         print('iChord: ' + str(iChord))
         progVal = {}
         progNum = {}
         hasDuplicates = True
-        
-        maxDiatonicListVal = {}
-        for instKey in self.instDict:
-            maxDiatonicListVal[instKey] = self.instDict[instKey].maxDiatonicListVal
-        self.orderOfRange = sorted(maxDiatonicListVal,key=maxDiatonicListVal.get)
-        self.orderOfRangeMB = []
-        for inst,instKey in enumerate(self.orderOfRange):
-            if not self.instDict[instKey].bass:
-                self.orderOfRangeMB.append(instKey)
         
         chordUse = []
         instUse = []
@@ -312,7 +291,11 @@ class ChordProgression(object):
         if iChord > 0:
             #Genetic Algorithm
             print('Using Genetic Algorithm to find optimum solution...')
-            sizePopulation = math.factorial(len(self.orderOfRangeMB)*2)
+            if len(self.orderOfRange)<6:
+                #Making population bigger if ensemble is too small
+                sizePopulation = math.factorial(6) 
+            else:
+                sizePopulation = math.factorial(len(self.orderOfRangeMB))
             print('Creating initial population...')
             population = self.generatePopulation(sizePopulation,diatListInv,iChord)
             populationPerf = self.computePerfPopulation(population,iChord,diatListInv)
@@ -329,7 +312,15 @@ class ChordProgression(object):
             nextPopulationPerf = self.computePerfPopulation(nextPopulation,iChord,diatListInv)
             print('Finished evolution!')
             instDiatList = nextPopulation[nextPopulationPerf[0][0]]
-            print('Final parts are: ' + str(instDiatList))
+            print('Final (non-bass) parts are: ' + str(instDiatList))
+            for i,diat in enumerate(instDiatList):
+                if diat == -1:
+                    print('Initial population: ' + str(population))
+                    print('Initial performance: ' + str(populationPerf))
+                    print('NextGeneration: ' + str(nextGenPop))
+                    print('Next Population: ' + str(nextPopulation))
+                    print('Next Performance: ' + str(nextPopulationPerf))
+                    raise ValueError('Could not converge on: ' + self.orderOfRangeMB[i])
 
         #import pdb
         #pdb.set_trace()
@@ -341,25 +332,11 @@ class ChordProgression(object):
         #    pdb.set_trace()
         for inst,instKey in enumerate(self.orderOfRange):
             if iChord == 0:
-                if instKey == iLowestBassKey:
+                if self.instDict[instKey].bass:
+                    iLowestBassVal, iLowestBassNum = self.findInstLowestBass(instKey,diatListInv[0])
                     progVal[instKey] = iLowestBassVal
                     progNum[instKey] = iLowestBassNum
                     chordUse[0] = True
-                    instUse[inst] = True
-                elif self.orderOfRange[-1] == instKey:
-                    totalRange = len(self.instDict[instKey].diatonicListVal)
-                    halfRange = int(totalRange/2)
-                    halfNum = self.instDict[instKey].diatonicListNum[halfRange]
-                    halfVal = self.instDict[instKey].diatonicListVal[halfRange]
-                    chordNum = diatListInv[-1]
-                    dNum = chordNum - halfNum
-                    if dNum < -self.diatTol:
-                        dNum = 7 + dNum 
-                    elif dNum > self.diatTol:
-                        dNum = dNum - 7
-                    progNum[instKey] = self.instDict[instKey].diatonicListNum[halfRange + dNum]
-                    progVal[instKey] = self.instDict[instKey].diatonicListVal[halfRange + dNum]
-                    chordUse[-1] = True
                     instUse[inst] = True
                 elif all(chordUse) is False:
                     switch = 0
@@ -401,7 +378,8 @@ class ChordProgression(object):
                             switch = 1
 
             else:
-                if instKey == iLowestBassKey:
+                if self.instDict[instKey].bass:
+                    iLowestBassVal, iLowestBassNum = self.findInstLowestBass(instKey,diatListInv[0])
                     progVal[instKey] = iLowestBassVal
                     progNum[instKey] = iLowestBassNum
                     chordUse[0] = True
@@ -415,8 +393,8 @@ class ChordProgression(object):
                         
                     for inst,instKey in enumerate(self.orderOfRangeMB):
                         previousPartVal = self.instPartsVal[instKey][iChord-1]
-                        previousPartNum = self.instPartsNum[instKey][iChord-1]
-                        previousPartIdx = self.instDict[instKey].diatonicListVal.index(previousPartVal)
+                        previousPartIdx = min(range(len(self.instDict[instKey].diatonicListVal)), key=lambda i: abs(self.instDict[instKey].diatonicListVal[i]-previousPartVal))
+                        previousPartNum = self.instDict[instKey].diatonicListNum[previousPartIdx]
                         diat = instDiatList[inst]
                         dChordNum[inst] = diat - previousPartNum  
                         if dChordNum[inst] < -self.diatTol:
@@ -436,59 +414,121 @@ class ChordProgression(object):
         print('Completed instrument loop')
         #import pdb
         #pdb.set_trace()
-        print('Checking for duplicates...')
-        hasDuplicates, dupleDict = self.checkForDuplicates(list(progVal.values()))
-        if hasDuplicates == False:
-            print('No duplicates found.')
-        elif iChord > 0:
-            raise ValueError('Duplicate should not exist!')
-        else:
-            print('Resolving duplicates')
-            dupleDictValues = list(dupleDict.values())[0]
-            progNum, progVal = self.resolveDuplicates(dupleDictValues,progNum,progVal,diatListInv, iChord)
-                
+        
+        
+        dupTestVals = []
+        for inst,instKey in enumerate(self.orderOfRange):
+            if not self.instDict[instKey].bass:
+                dupTestVals.append(progVal[instKey])
+ 
         for inst in progNum:
             diatKey = findKey(self.instDict[inst].grandStaff,progVal[inst])
             print('Instrument: ' + inst + ' Diatonic: ' + str(progNum[inst]) + ' Value: ' + str(progVal[inst]) + ' Key: ' + str(diatKey))
         return progNum, progVal
             
-        
-        
-    def harmonizeTriadParts(self):
+    def getDiatList(self,iChord,chord):
+        root = int(chord[0])
+        third = self.loopDiatonic(root + 2)
+        fifth = self.loopDiatonic(root + 4)
+
+        if len(chord) == 1:
+            mod = 'T'
+        elif len(chord) > 1:
+            mod = chord[1]
+        print('\nCreating diatonic list...')
+        if len(chord)>1:
+            if len(chord) < 4:
+                if chord[1] == 'S':
+                    print('Making a seventh chord: ' + chord[0])
+                    #Seventh chord
+                    seventh = self.loopDiatonic(root + 6)
+                    diatList = [root,third,fifth,seventh]
+                    diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord])
+                elif chord[1] == 'B':
+                    #Borrowed chord (usually will be seventh chord by this point) Will not implement triad
+                    borrowedRoot = int(chord[2])
+                    borrowedKey = self.tonality.findBorrowedKey(borrowedRoot)
+                    borrowedTonality = Tonality(borrowedKey,self.tonality.tonalMode)
+                    print('Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                    for instKey in self.instDict:
+                        self.instDict[instKey].tonality = borrowedTonality
+                        self.instDict[instKey].initializeDiatonics()
+                    if chord[0] == '4' or len(self.orderOfRangeMB) < 4:
+                        diatList = [root,third,fifth]
+                        diatListInv = self.inversionPicker('T', diatList, self.inv[iChord])
+                    else:
+                        print('Making a seventh chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                        seventh = self.loopDiatonic(root + 6)
+                        diatList = [root,third,fifth,seventh]
+                        diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord])  
+            else:
+                if chord[3] == 'B':
+                    #Double borrow!
+                    #Borrowed chord (usually will be seventh chord by this point) Will not implement triad
+                    borrowedRoot = int(chord[2])
+                    borrowedKey = self.tonality.findBorrowedKey(borrowedRoot)
+                    borrowedTonality = Tonality(borrowedKey,self.tonality.tonalMode)
+                    print('First Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                    for instKey in self.instDict:
+                        self.instDict[instKey].tonality = borrowedTonality
+                        self.instDict[instKey].initializeDiatonics()
+                    i = 3
+                    while i + 2 <= len(chord):
+                        borrowedRoot = int(chord[i+1])
+                        borrowedKey = borrowedTonality.findBorrowedKey(borrowedRoot)
+                        borrowedTonality = Tonality(borrowedKey,self.tonality.tonalMode)
+                        print('Next Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                        for instKey in self.instDict:
+                            self.instDict[instKey].tonality = borrowedTonality
+                            self.instDict[instKey].initializeDiatonics()
+                        if chord[0] == '4' or len(self.orderOfRangeMB) < 4:
+                            diatList = [root,third,fifth]
+                            diatListInv = self.inversionPicker('T', diatList, self.inv[iChord])
+                        else:
+                            print('Making a seventh chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                            seventh = self.loopDiatonic(root + 6)
+                            diatList = [root,third,fifth,seventh]
+                            diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord]) 
+                        i += 2
+        else:
+            diatList = [root,third,fifth]
+            diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord])
+        print('Finished diatonic list...')
+        return diatListInv
+            
+    def harmonizeParts(self):
         self.instPartsVal = {}
         self.instPartsNum = {}
         self.instPartsKey = {}
+        
+        maxDiatonicListVal = {}
+        for instKey in self.instDict:
+            maxDiatonicListVal[instKey] = self.instDict[instKey].maxDiatonicListVal
+        self.orderOfRange = sorted(maxDiatonicListVal,key=maxDiatonicListVal.get)
+        self.orderOfRangeMB = []
+        for inst,instKey in enumerate(self.orderOfRange):
+            if not self.instDict[instKey].bass:
+                self.orderOfRangeMB.append(instKey)
+        
         for instKey in self.instDict:
             self.instPartsVal[instKey] = []
             self.instPartsNum[instKey] = []
             self.instPartsKey[instKey] = []
             
-        for iChord, chord in enumerate(self.prog):
-            
-            self.root = []
-            self.third = []
-            self.fifth = []
-            self.diatList = []
-            
-            root = chord
-            third = self.loopDiatonic(root + 2)
-            fifth = self.loopDiatonic(root + 4)
-            
-            self.root.append(root)
-            self.third.append(third)
-            self.fifth.append(fifth)
-
-            self.diatList.append([root,third,fifth])
-            diatList = [root,third,fifth]
-            diatListInv = self.inversionPicker(diatList, self.inv[iChord])
-            [iLowestBassVal, iLowestBassKey, iLowestBassNum] = self.findInstLowestBass(diatListInv[0])
-            
-            progNum, progVal = self.resolveProgression(iChord, iLowestBassVal, iLowestBassKey, iLowestBassNum, diatListInv)
-            
+        for iChord, chord in enumerate(self.prog):            
+            diatListInv = self.getDiatList(iChord,chord)
+  
+            progNum, progVal = self.resolveProgression(iChord, diatListInv)
             for instKey in self.instDict:
                 self.instPartsVal[instKey].append(progVal[instKey])
                 self.instPartsNum[instKey].append(progNum[instKey])
                 self.instPartsKey[instKey].append(findKey(self.instDict[instKey].grandStaff,progVal[instKey]))
+            
+            if len(chord)>1:
+                if chord[1] == 'B':
+                    for instKey in self.instDict:
+                        self.instDict[instKey].tonality = self.tonality
+                        self.instDict[instKey].initializeDiatonics()
             
                 
                 
