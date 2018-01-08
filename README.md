@@ -19,12 +19,12 @@ Different genres of music use different flavors of these parts. A 16th century c
 1) Creation of a multi-part harmony (1 chord per measure) with a chosen chord progression (or 'cadence')
 2) Genetic Algorithm method to minimize diatonic jumps between chords and instruments
 3) Simple but very powerful method to represent chords and can represent most chord progressions.
-    a) Triad Chords (e.g. Key of C, Chord '2' is A minor)
-    a) Seventh Chords based on diatonics (e.g. Key of C, Chord '5S' is G7, but Chord '4S' is Cmaj7)
-    b) Borrowed Chords (e.g. Key of C, Chord 5B5 is D7 [C-->key 5 = G, diatonic 5 = D7], Chord 5B4 is C7 [C-->key 4 = F, diatonic 5 = C7])
-        i) Can be stacked: 4B4B4 is Eb [C-->key 4 = F-->key 4 = Bb, diatonic 4 = Eb]
-        ii) Borrowed chords are always sevenths, unless chord is diatonic 4
-        iii) Seventh chords are only used in ensembles > 3 + bass
+   -  Triad Chords (e.g. Key of C, Chord '2' is A minor)
+   -  Seventh Chords based on diatonics (e.g. Key of C, Chord '5S' is G7, but Chord '4S' is Cmaj7)
+   -  Borrowed Chords (e.g. Key of C, Chord 5B5 is D7 [C-->key 5 = G, diatonic 5 = D7], Chord 5B4 is C7 [C-->key 4 = F, diatonic 5 = C7])
+      -  Can be stacked: 4B4B4 is Eb [C-->key 4 = F-->key 4 = Bb, diatonic 4 = Eb]
+      -  Borrowed chords are always sevenths, unless chord is diatonic 4
+      -  Seventh chords are only used in ensembles > 3 + bass
 4) Scalable harmony creation method, can be applied to different ensemble sizes (create with Ensemble.py, minimum of 3 + bass instruments)
 5) Able to vary Key Signature, Tonality (Major/Minor), and Tempo
 
