@@ -77,54 +77,54 @@ class Tonality(object):
         self.diatonicRangeVal: Dictionary of the diatonic chromatic values with the keySignature as keys (rarely Used)
         self.diatonicRangeNum: Dictionary of the diatonic degree numbers with the keySignature as keys (rarely Used)
         '''
-            self.lowestTonicVal = self.grandStaff[self.lowestTonic]
-            self.diatonicRangeVal = {}
-            self.diatonicListVal = []
-            self.diatonicRangeNum = {}
-            self.diatonicListNum = []
-            self.octaveList = []
+        self.lowestTonicVal = self.grandStaff[self.lowestTonic]
+        self.diatonicRangeVal = {}
+        self.diatonicListVal = []
+        self.diatonicRangeNum = {}
+        self.diatonicListNum = []
+        self.octaveList = []
+        noteValue = self.lowestTonicVal
+        noteCtr = 0
+        octCtr = 0
+        
+        if self.lowestTonicVal > self.lowestNoteVal:
+            noteCtr = -1
+            octCtr = -1
             noteValue = self.lowestTonicVal
-            noteCtr = 0
-            octCtr = 0
+            tonalNote = self.chromatics[0] + 12*octCtr + self.lowestTonicVal
+            self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))] = []
+            self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))] = []
+            self.octaveList.append(tonalNote)
             
-            if self.lowestTonicVal > self.lowestNoteVal:
-                noteCtr = -1
-                octCtr = -1
-                noteValue = self.lowestTonicVal
-                tonalNote = self.chromatics[0] + 12*octCtr + self.lowestTonicVal
-                self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))] = []
-                self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))] = []
-                self.octaveList.append(tonalNote)
-                
-                for diatonics, item in enumerate(self.chromatics):
-                    noteValue = self.chromatics[diatonics] + 12*octCtr + self.lowestTonicVal
-                    if noteValue < self.lowestNoteVal:
-                        pass
-                    else:
-                        self.diatonicListVal.append(noteValue)
-                        self.diatonicListNum.append(diatonics + 1)
-                        self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))].append(noteValue)
-                        self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))].append(diatonics + 1)
-                    noteCtr += 1
-                octCtr += 1
-
-            while noteValue <= self.highestNoteVal:
-                tonalNote = self.chromatics[0] + 12*octCtr + self.lowestTonicVal
-                self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))] = []
-                self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))] = []
-                self.octaveList.append(tonalNote)
-                
-                for diatonics, item in enumerate(self.chromatics):
-                    noteValue = self.chromatics[diatonics] + 12*octCtr + self.lowestTonicVal
-                    if noteValue > self.highestNoteVal:
-                        break
+            for diatonics, item in enumerate(self.chromatics):
+                noteValue = self.chromatics[diatonics] + 12*octCtr + self.lowestTonicVal
+                if noteValue < self.lowestNoteVal:
+                    pass
+                else:
                     self.diatonicListVal.append(noteValue)
                     self.diatonicListNum.append(diatonics + 1)
                     self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))].append(noteValue)
                     self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))].append(diatonics + 1)
-                    noteCtr += 1
-                octCtr += 1
-        
+                noteCtr += 1
+            octCtr += 1
+
+        while noteValue <= self.highestNoteVal:
+            tonalNote = self.chromatics[0] + 12*octCtr + self.lowestTonicVal
+            self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))] = []
+            self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))] = []
+            self.octaveList.append(tonalNote)
+            
+            for diatonics, item in enumerate(self.chromatics):
+                noteValue = self.chromatics[diatonics] + 12*octCtr + self.lowestTonicVal
+                if noteValue > self.highestNoteVal:
+                    break
+                self.diatonicListVal.append(noteValue)
+                self.diatonicListNum.append(diatonics + 1)
+                self.diatonicRangeVal[(findKey(self.grandStaff,tonalNote))].append(noteValue)
+                self.diatonicRangeNum[(findKey(self.grandStaff,tonalNote))].append(diatonics + 1)
+                noteCtr += 1
+            octCtr += 1
+    
     def findLowestTonic(self):
         '''
         Given an instrument (or entire range if inside Tonality.py), find the lowest tonic within its range
@@ -166,4 +166,7 @@ class Tonality(object):
         else:
             newKeyShort = newKeyLong[0]
         return newKeyShort
+        
+        
+        
         

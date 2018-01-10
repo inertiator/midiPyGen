@@ -10,15 +10,15 @@ from BaseClasses.Ensemble import Ensemble
 #If it breaks, try running it again. The nature of the randomized genetic algorithm can yield a better result.
 
 date = '1_4_2018'
-keySig = 'C'
-tonalMode = 'Major'
+keySig = 'A'
+tonalMode = 'Minor'
 tonal = Tonality(keySig,tonalMode)
 #numBeats: Time signature input, number of beats per measure
 numBeats = 4
 #beat: Time signature beat note, 4 means quarter note
 beat = 4
 #Tempo in beats per minute
-tempo = 120
+tempo = 135
 
 timeMeter = TimeMeter(numBeatsPerMeasure = numBeats, beat = beat, tempo = tempo)
 
@@ -29,16 +29,16 @@ ensemble = Ensemble(ensem)
 song = Song(ensemble,timeMeter,tonal)
 
 #Select cadence from ChordProgression.py
-cadence = 'ForgetYou'
+cadence = 'Funky'
 
 #Melody Generation in future update, use mode = 'acc' for now
 melodyKey = 'flute'
-mode = 'acc'
+mode = 'melody'
 
 if mode == 'melody':
-######################################################
-#Work in progress, C major, BluesTestABA, flute, melody
-#######################################################
+#############################################################
+#Work in progress, Works Intermittently, Still Very Buggy (Breaks often and doesn't resolve at right chord in first part of periods.
+#############################################################
     title = date + '_' + ensem + '_' + cadence + '_' + keySig + '_' + tonalMode + '_' + melodyKey
     song.generateMelodyAcc(cadence, melodyKey)
     botMidi = MidiPyGen(song,title)

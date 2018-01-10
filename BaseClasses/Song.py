@@ -70,7 +70,7 @@ class Song(object):
                 self.instDict[instKey].chArr.append(ch)
                 
     def generateMelodyAcc(self, cadence, melodyKey, start = 0, meloVel = 100, accVel = 70):
-        velocity = 100
+        velocity = 60
         self.melodyDict = {}
         self.melodyDict[melodyKey] = deepcopy(self.instDict[melodyKey])
         self.instDict.pop(melodyKey)
@@ -87,48 +87,7 @@ class Song(object):
         duration = self.timeMeter.numBeatsPerMeasure
         progTime = ProgressionTime(start, measures, duration, velocity, self.timeMeter)
         
-        print('\nWorking on melody part now...')
-        import pdb
-        pdb.set_trace()
-        #Split total length into 3 parts
-        measuresPerForm = int((measures-1)/3)
-      
-        motifTot = {}
-        formList = ['A','B','A']
-        measureCtr = 0
-        for iF,form in enumerate(formList):
-            if form in motifTot:
-                #If form has been already created
-                for melodyKey in self.melodyDict:
-                    for part in motifTot[form].instPartsVal[instKey]:
-                        self.melodyDict[melodyKey].pitchArr.append(part)
-                        pitchKey = findKey(self.melodyDict[melodyKey].grandStaff,part)
-                        self.melodyDict[melodyKey].pitchArrKeys.append(pitchKey)
-                        
-                for melodyKey in self.melodyDict:
-                        for tm in progTime.progTimeArray:
-                            self.melodyDict[melodyKey].timeArr.append(tm)
-                        for dur in progTime.progDurArray:
-                            self.melodyDict[melodyKey].durArr.append(dur)
-                        for vel in progTime.progVelArray:
-                            self.melodyDict[melodyKey].velArr.append(vel)
-                            self.melodyDict[melodyKey].chArr.append(ch)
-            else:
-                periodProg = chordProg.prog[measureCtr:measuresPerForm]
-                partPeriod = Period(self.timeMeter, self.tonality, periodProg, measuresPerForm, self.melodyDict)
-                partPeriod.createAntecedentConsequent()
-                import pdb
-                pdb.set_trace()
-
-                motifTot[form].instPartsVal = 1
-                 
-                
-                measaureCtr += measuresPerForm
-                
-        
-        
         ch = 0
-        
         for instKey in self.instDict:
             for tm in progTime.progTimeArray:
                 self.instDict[instKey].timeArr.append(tm)
@@ -137,9 +96,58 @@ class Song(object):
             for vel in progTime.progVelArray:
                 self.instDict[instKey].velArr.append(vel)
                 self.instDict[instKey].chArr.append(ch)
-        
-        #First Generate a Motif
-        melMot = Motif(self.timeMeter)
+                
+                
+        print('\nWorking on melody part now...')
+        #Split total length into 3 parts
+        measuresPerForm = int((measures-1)/3)
+        motifTot = {}
+        formList = ['A','B','A']
+        measureCtr = 0
+        melTime = 0
+        for iF,form in enumerate(formList):
+            if form in motifTot:
+                #If form has been already created
+                for melodyKey in self.melodyDict:
+                    for part in motifTot[form].progVal[melodyKey]:
+                        self.melodyDict[melodyKey].pitchArr.append(part)
+                        pitchKey = findKey(self.melodyDict[melodyKey].grandStaff,part)
+                        self.melodyDict[melodyKey].pitchArrKeys.append(pitchKey)
+                        
+                for melodyKey in self.melodyDict:
+                        for dt in motifTot[form].dTime:
+                            self.melodyDict[melodyKey].timeArr.append(melTime)
+                            self.melodyDict[melodyKey].durArr.append(dt)
+                            melTime += dt
+                            
+                        for vel in progTime.progVelArray:
+                            self.melodyDict[melodyKey].velArr.append(100)
+                            self.melodyDict[melodyKey].chArr.append(ch)
+            else:
+                periodProg = chordProg.prog[measureCtr:measuresPerForm]
+                beatsPerChord = 4
+                partPeriod = Period(beatsPerChord, self.timeMeter, self.tonality, periodProg, measuresPerForm, self.melodyDict)
+                partPeriod.createAntecedentConsequent()
+                motifTot[form] = deepcopy(partPeriod)
+                for melodyKey in self.melodyDict:
+                    for part in motifTot[form].progVal[melodyKey]:
+                        self.melodyDict[melodyKey].pitchArr.append(part)
+                        pitchKey = findKey(self.melodyDict[melodyKey].grandStaff,part)
+                        self.melodyDict[melodyKey].pitchArrKeys.append(pitchKey)
+                        
+                for melodyKey in self.melodyDict:
+                        for dt in motifTot[form].dTime:
+                            self.melodyDict[melodyKey].timeArr.append(melTime)
+                            self.melodyDict[melodyKey].durArr.append(dt)
+                            melTime += dt
+                            
+                        for vel in progTime.progVelArray:
+                            self.melodyDict[melodyKey].velArr.append(100)
+                            self.melodyDict[melodyKey].chArr.append(ch)
+                            
+        for melodyKey in self.melodyDict:
+            self.instDict[melodyKey] = deepcopy(self.melodyDict[melodyKey])
+            
         
         
         

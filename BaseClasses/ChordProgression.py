@@ -39,12 +39,12 @@ class ChordProgression(object):
         if self.cadence == 'Radioactive':
             #Prefer Minor Key
             self.prog = ['1','3','7','7B5']
-            self.prog = 8*self.prog
+            self.prog = 6*self.prog
             self.prog.append('1')
         if self.cadence == 'ForgetYou':
             #Prefer Major Key
             self.prog = ['1','5B5','4','1']
-            self.prog = 4*self.prog
+            self.prog = 6*self.prog
             self.prog.append('1')
         if self.cadence == 'Blues':
             #Prefer Major Key
@@ -64,7 +64,8 @@ class ChordProgression(object):
         if self.cadence == 'Funky':
             #Prefer Minor Key
             self.prog = ['1S','7B5']
-            self.prog = 8*self.prog  
+            self.prog = 12*self.prog  
+            self.prog.append('1')
         if self.cadence == 'Ending':
             #Prefer Major Key
             self.prog = ['1','5B4','4','4B4B4B4','4B4','1']
@@ -104,7 +105,6 @@ class ChordProgression(object):
             if self.instDict[instKey].diatonicListNum[i] == bass:
                 if val < iLowestBassVal:
                     iLowestBassVal = val 
-        #FIX IF BASS AND SECOND LOWEST HAVE SAME DIATONIC BASE VAL
         #import pdb
         #pdb.set_trace()
         return iLowestBassVal, iLowestBassNum
@@ -162,11 +162,7 @@ class ChordProgression(object):
             if tempNewIdx + self.rangeTol >= len(self.instDict[instKey].diatonicListNum) or tempNewIdx - self.diatTol < 0:
                 dChordNum[inst] = 99
             diatUse[diat] = True
-        #print(instDiatList)
-        #print(diatUse)
         diatUseList = list(diatUse.values())
-        #print(diatUseList)
-        #print('Checking for duplicates...')
         hasDuplicates, dupleDict = self.checkForDuplicates(list(progVal.values()))
         tooCloseSev = self.checkForCloseness(list(progVal.values()))
         for inst,instKey in enumerate(self.orderOfRangeMB):
@@ -325,9 +321,6 @@ class ChordProgression(object):
         breakCtr = 0
         chordUseSwitch = 0
         print('Populating chord....')
-        #if iChord == 34:
-        #    import pdb
-        #    pdb.set_trace()
         for inst,instKey in enumerate(self.orderOfRange):
             if iChord == 0:
                 if self.instDict[instKey].bass:
@@ -494,11 +487,7 @@ class ChordProgression(object):
         print('Finished diatonic list...')
         return diatListInv
             
-    def harmonizeParts(self):
-        self.instPartsVal = {}
-        self.instPartsNum = {}
-        self.instPartsKey = {}
-        
+    def setupOrderOfRangeMB(self):
         maxDiatonicListVal = {}
         for instKey in self.instDict:
             maxDiatonicListVal[instKey] = self.instDict[instKey].maxDiatonicListVal
@@ -507,6 +496,13 @@ class ChordProgression(object):
         for inst,instKey in enumerate(self.orderOfRange):
             if not self.instDict[instKey].bass:
                 self.orderOfRangeMB.append(instKey)
+    
+    def harmonizeParts(self):
+        self.instPartsVal = {}
+        self.instPartsNum = {}
+        self.instPartsKey = {}
+        self.setupOrderOfRangeMB()
+        
         
         for instKey in self.instDict:
             self.instPartsVal[instKey] = []
