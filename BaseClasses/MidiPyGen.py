@@ -47,6 +47,9 @@ class MidiPyGen(MIDIFile):
     def runCode(self):
         for track,instKey in enumerate(self.song.instDict):
             for iT,time in enumerate(self.song.instDict[instKey].timeArr):
+                print(instKey)
+                print(iT)
+                print(time)
                 pitch = self.song.instDict[instKey].pitchArr[iT]
                 duration = self.song.instDict[instKey].durArr[iT]
                 velocity = self.song.instDict[instKey].velArr[iT]

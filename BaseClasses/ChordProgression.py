@@ -417,20 +417,24 @@ class ChordProgression(object):
             print('Instrument: ' + inst + ' Diatonic: ' + str(progNum[inst]) + ' Value: ' + str(progVal[inst]) + ' Key: ' + str(diatKey))
         return progNum, progVal
             
-    def getDiatList(self,iChord,chord):
+    def getDiatList(self,iChord,chord,vb=1):
         root = int(chord[0])
         third = self.loopDiatonic(root + 2)
         fifth = self.loopDiatonic(root + 4)
-
+        for instKey in self.instDict:
+            self.instDict[instKey].tonality = deepcopy(self.tonality)
+            self.instDict[instKey].initializeDiatonics()
         if len(chord) == 1:
             mod = 'T'
         elif len(chord) > 1:
             mod = chord[1]
-        print('\nCreating diatonic list...')
+        if vb == 1:
+            print('\nCreating diatonic list...')
         if len(chord)>1:
             if len(chord) < 4:
                 if chord[1] == 'S':
-                    print('Making a seventh chord: ' + chord[0])
+                    if vb ==1:
+                        print('Making a seventh chord: ' + chord[0])
                     #Seventh chord
                     seventh = self.loopDiatonic(root + 6)
                     diatList = [root,third,fifth,seventh]
@@ -440,7 +444,8 @@ class ChordProgression(object):
                     borrowedRoot = int(chord[2])
                     borrowedKey = self.tonality.findBorrowedKey(borrowedRoot)
                     borrowedTonality = Tonality(borrowedKey,self.tonality.tonalMode)
-                    print('Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                    if vb == 1:
+                        print('Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
                     for instKey in self.instDict:
                         self.instDict[instKey].tonality = borrowedTonality
                         self.instDict[instKey].initializeDiatonics()
@@ -448,7 +453,8 @@ class ChordProgression(object):
                         diatList = [root,third,fifth]
                         diatListInv = self.inversionPicker('T', diatList, self.inv[iChord])
                     else:
-                        print('Making a seventh chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                        if vb == 1:
+                            print('Making a seventh chord: ' + chord[0] + ' from key: ' + borrowedKey)
                         seventh = self.loopDiatonic(root + 6)
                         diatList = [root,third,fifth,seventh]
                         diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord])  
@@ -459,7 +465,8 @@ class ChordProgression(object):
                     borrowedRoot = int(chord[2])
                     borrowedKey = self.tonality.findBorrowedKey(borrowedRoot)
                     borrowedTonality = Tonality(borrowedKey,self.tonality.tonalMode)
-                    print('First Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                    if vb == 1:
+                        print('First Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
                     for instKey in self.instDict:
                         self.instDict[instKey].tonality = borrowedTonality
                         self.instDict[instKey].initializeDiatonics()
@@ -468,7 +475,8 @@ class ChordProgression(object):
                         borrowedRoot = int(chord[i+1])
                         borrowedKey = borrowedTonality.findBorrowedKey(borrowedRoot)
                         borrowedTonality = Tonality(borrowedKey,self.tonality.tonalMode)
-                        print('Next Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                        if vb == 1:
+                            print('Next Borrowing chord: ' + chord[0] + ' from key: ' + borrowedKey)
                         for instKey in self.instDict:
                             self.instDict[instKey].tonality = borrowedTonality
                             self.instDict[instKey].initializeDiatonics()
@@ -476,7 +484,8 @@ class ChordProgression(object):
                             diatList = [root,third,fifth]
                             diatListInv = self.inversionPicker('T', diatList, self.inv[iChord])
                         else:
-                            print('Making a seventh chord: ' + chord[0] + ' from key: ' + borrowedKey)
+                            if vb == 1:
+                                print('Making a seventh chord: ' + chord[0] + ' from key: ' + borrowedKey)
                             seventh = self.loopDiatonic(root + 6)
                             diatList = [root,third,fifth,seventh]
                             diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord]) 
@@ -484,7 +493,8 @@ class ChordProgression(object):
         else:
             diatList = [root,third,fifth]
             diatListInv = self.inversionPicker(mod, diatList, self.inv[iChord])
-        print('Finished diatonic list...')
+        if vb == 1:
+            print('Finished diatonic list...')
         return diatListInv
             
     def setupOrderOfRangeMB(self):

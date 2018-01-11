@@ -9,7 +9,7 @@ from BaseClasses.Ensemble import Ensemble
 ###############################
 #If it breaks, try running it again. The nature of the randomized genetic algorithm can yield a better result.
 
-date = '1_4_2018'
+date = '1_10_2018'
 keySig = 'A'
 tonalMode = 'Minor'
 tonal = Tonality(keySig,tonalMode)
@@ -39,7 +39,7 @@ if mode == 'melody':
 #############################################################
 #Work in progress, Works Intermittently, Still Very Buggy (Breaks often and doesn't resolve at right chord in first part of periods.
 #############################################################
-    title = date + '_' + ensem + '_' + cadence + '_' + keySig + '_' + tonalMode + '_' + melodyKey
+    title = date + '_' + ensem + '_' + cadence + '_' + keySig + '_' + tonalMode + '_' + str(melodyKey)
     song.generateMelodyAcc(cadence, melodyKey)
     botMidi = MidiPyGen(song,title)
     botMidi.runCode()
@@ -56,3 +56,4 @@ for instKey in song.instDict:
     print('Instrument: ' + instKey)
     print(song.instDict[instKey].pitchArr)
     print(song.instDict[instKey].pitchArrKeys)
+

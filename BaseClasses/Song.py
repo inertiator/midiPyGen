@@ -72,6 +72,7 @@ class Song(object):
     def generateMelodyAcc(self, cadence, melodyKey, start = 0, meloVel = 100, accVel = 70):
         velocity = 60
         self.melodyDict = {}
+        
         self.melodyDict[melodyKey] = deepcopy(self.instDict[melodyKey])
         self.instDict.pop(melodyKey)
         
@@ -123,8 +124,12 @@ class Song(object):
                         for vel in progTime.progVelArray:
                             self.melodyDict[melodyKey].velArr.append(100)
                             self.melodyDict[melodyKey].chArr.append(ch)
+                measureCtr  += measuresPerForm  
             else:
-                periodProg = chordProg.prog[measureCtr:measuresPerForm]
+                print(chordProg.prog)
+                periodProg = chordProg.prog[measureCtr:measuresPerForm+measureCtr]
+                print(periodProg)
+                print(measureCtr)
                 beatsPerChord = 4
                 partPeriod = Period(beatsPerChord, self.timeMeter, self.tonality, periodProg, measuresPerForm, self.melodyDict)
                 partPeriod.createAntecedentConsequent()
@@ -144,6 +149,7 @@ class Song(object):
                         for vel in progTime.progVelArray:
                             self.melodyDict[melodyKey].velArr.append(100)
                             self.melodyDict[melodyKey].chArr.append(ch)
+                measureCtr  += measuresPerForm
                             
         for melodyKey in self.melodyDict:
             self.instDict[melodyKey] = deepcopy(self.melodyDict[melodyKey])

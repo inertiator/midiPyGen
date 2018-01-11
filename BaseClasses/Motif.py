@@ -1,9 +1,12 @@
 import random
+import math
+import operator
 from copy import deepcopy
 from BaseClasses.ChordProgression import ChordProgression
+from Utilities.BasicFunctions import findKey
 
 class Motif(object):
-    def __init__(self, beatsPerChord, length, timeMeter, tonality, instDict, chordSlice, inpMotif=None):
+    def __init__(self, beatsPerChord, length, timeMeter, tonality, instDict, chordSlice, diatTol, inpMotif=None):
         self.length = length
         self.timeMeter = timeMeter
         self.beatsPerChord = beatsPerChord
@@ -12,6 +15,7 @@ class Motif(object):
         self.tonality = tonality
         self.chordSlice = chordSlice
         self.inpMotif = inpMotif
+        self.diatTol = diatTol
         self.timeArr = []
         self.diatArr = []
         self.diatList = []
@@ -21,7 +25,7 @@ class Motif(object):
         notional = [0.5,1,1.5,2,3,4,6]
         self.subDiv = []
         for i in notional:
-            if i > self.timeMeter.numBeatsPerMeasure:
+            if i > self.timeMeter.numBeatsPerMeasure-1:
                 break
             else:
                 self.subDiv.append(i)
@@ -56,7 +60,15 @@ class Motif(object):
     def combineRandomRhythms(self):
         first = self.generateRandomRhythms()
         second = self.generateRandomRhythms()
-        rytTot = first + second + first + second
+        rI = random.randint(0,3)
+        if rI == 0:
+            rytTot = first + second + first + second
+        elif rI == 1:
+            rytTot = first + first + second + second
+        elif rI == 2:
+            rytTot = second + first + second + first
+        elif rI == 3:
+            rytTot = second + second + first + first
         return rytTot 
         
     def createRandomFill(self,motD,rytTot):
@@ -88,19 +100,118 @@ class Motif(object):
                 self.motTot[i] = self.motTot[i]
                 self.rytTot[i] = 4
                 endIdx = i
+                break
             bCtr += ryt
         self.motTot = self.motTot[:endIdx+1]
         self.rytTot = self.rytTot[:endIdx+1]
         
+    def generateRandomMotif(self):
+        motD = self.generateMotifDiats()
+        rytTot = self.combineRandomRhythms()
+        motTot = self.createRandomFill(motD,rytTot)
+        return motTot, rytTot
+        
+    def generatePopulation(self,sizePopulation):
+        population = []
+        i = 0
+        while i < sizePopulation:
+            population.append(self.generateRandomMotif())
+            i += 1
+        return population
+        
+    def computePerfPopulation(self,population):
+        populationPerf = {}
+        for i,individual in enumerate(population):
+            populationPerf[i] = self.findFitness(individual)
+        return sorted(populationPerf.items(), key=operator.itemgetter(1))
+        
+    def findFitness(self, individual):
+        
+        motTot = individual[0]
+        rytTot = individual[1]
+        dNum = []
+        dChordValFC = []
+        progVal = {}
+        for iC,chord in enumerate(motTot):
+            dNum.append(0)
+            dChordValFC.append(0)
+        iChord = 0
+        for inst,instKey in enumerate(self.instDict):
+            progVal[instKey] = []
+            for iMot,mot in enumerate(motTot):
+                if iMot == 0 or bCtr == self.beatsPerChord:
+                    bCtr = 0
+                    chord = self.chordProg.prog[iChord]
+                    newInstDict = {}
+                    newInstDict[instKey] = deepcopy(self.instDict[instKey])
+                    self.nextChord = ChordProgression(chord, self.tonality, newInstDict)
+                    self.nextChord.setupOrderOfRangeMB()
+                    self.nextChord.prog = chord
+                    self.nextChord.inv = [None]
+                    diatList = self.nextChord.getDiatList(0,chord,vb=0)
+                    iChord += 1
+                if iMot == 0:
+                    totalRange = len(self.nextChord.instDict[instKey].diatonicListVal)
+                    halfRange = int(totalRange/2)
+                    halfNum = self.nextChord.instDict[instKey].diatonicListNum[halfRange]
+                    halfVal = self.nextChord.instDict[instKey].diatonicListVal[halfRange]
+                    meloNum = motTot[iMot]
+                    dNum[iMot] = meloNum - halfNum
+                    if dNum[iMot] < -self.diatTol:
+                        dNum[iMot] = 7 + dNum[iMot]
+                    elif dNum[iMot] > self.diatTol:
+                        dNum[iMot] = dNum[iMot] - 7
+                    progVal[instKey].append(self.nextChord.instDict[instKey].diatonicListVal[halfRange + dNum[iMot]])
+                else:
+                    previousPartVal = progVal[instKey][iMot-1]
+                    previousPartIdx = min(range(len(self.nextChord.instDict[instKey].diatonicListVal)), key=lambda i: abs(self.nextChord.instDict[instKey].diatonicListVal[i]-previousPartVal))
+                    previousPartNum = self.nextChord.instDict[instKey].diatonicListNum[previousPartIdx]
+                    meloNum = motTot[iMot]
+                    dNum[iMot] = meloNum - previousPartNum
+                    if dNum[iMot] < -self.diatTol:
+                        dNum[iMot] = 7 + dNum[iMot]
+                    elif dNum[iMot] > self.diatTol:
+                        dNum[iMot] = dNum[iMot] - 7
+                    try:
+                        tempNewVal = self.nextChord.instDict[instKey].diatonicListVal[previousPartIdx + dNum[iMot]]
+                        progVal[instKey].append(tempNewVal)
+                        tempNewIdx = self.nextChord.instDict[instKey].diatonicListVal.index(tempNewVal)
+                        dChordValFC[iMot] = tempNewVal - progVal[instKey][0]
+                    except:
+                        tempNewVal = 0
+                        progVal[instKey].append(0)
+                        tempNewIdx = 0
+                        dChordValFC[iMot] = 999
+                        
+                    
+                bCtr += rytTot[iMot]
+
+        dChordValFirstTot = 0
+        dNumTot = 0
+        for idcn, dcn in enumerate(dNum):
+            dNumTot += abs(dcn)
+            dChordValFirstTot += abs(dChordValFC[idcn])
+        
+        fitness = (dNumTot + dChordValFirstTot)/len(motTot)
+        return fitness
         
         
     def createMotifFromChords(self):
         print('Creating Motif...')
         print('Total measures is: ' + str(self.length))
+        print('Using Genetic Algorithm to find optimum solution...')
         self.createSubdivisions()
-        self.motD = self.generateMotifDiats()
-        self.rytTot = self.combineRandomRhythms()
-        self.motTot = self.createRandomFill(self.motD,self.rytTot)
+        sizePopulation = math.factorial(3)
+        print('Creating initial population...')
+        population = self.generatePopulation(sizePopulation)
+        populationPerf = self.computePerfPopulation(population)
+        print('Finished evolution!')
+        chosenOne = population[populationPerf[0][0]]
+        self.motTot = chosenOne[0]
+        self.rytTot = chosenOne[1]
+
+        
+
         
     
 class Period(object):
@@ -113,6 +224,7 @@ class Period(object):
         self.instDict = instDict
         self.progNum = {}
         self.progVal = {}
+        self.progKey = {}
         self.diatTol = 3
         
         
@@ -122,6 +234,7 @@ class Period(object):
         for inst,instKey in enumerate(self.instDict):
             self.progNum[instKey] = []
             self.progVal[instKey] = []
+            self.progKey[instKey] = []
             for iMot,mot in enumerate(self.motPeriod):
                 if iMot == 0 or bCtr == self.beatsPerChord:
                     bCtr = 0
@@ -130,9 +243,9 @@ class Period(object):
                     newInstDict[instKey] = deepcopy(self.instDict[instKey])
                     self.nextChord = ChordProgression(chord, self.tonality, newInstDict)
                     self.nextChord.setupOrderOfRangeMB()
-                    self.nextChord.prog = self.chordProg[iChord]
+                    self.nextChord.prog = chord
                     self.nextChord.inv = [None]
-                    diatList = self.nextChord.getDiatList(0,chord)
+                    diatList = self.nextChord.getDiatList(0,chord,vb=0)
                     iChord += 1
                 if iMot == 0:
                     totalRange = len(self.nextChord.instDict[instKey].diatonicListVal)
@@ -147,11 +260,13 @@ class Period(object):
                         dNum = dNum - 7
                     self.progNum[instKey].append(self.nextChord.instDict[instKey].diatonicListNum[halfRange + dNum])
                     self.progVal[instKey].append(self.nextChord.instDict[instKey].diatonicListVal[halfRange + dNum])
+                    self.progKey[instKey].append(findKey(self.nextChord.instDict[instKey].grandStaff,self.nextChord.instDict[instKey].diatonicListVal[halfRange + dNum]))
                 else:
                     previousPartVal = self.progVal[instKey][iMot-1]
                     previousPartIdx = min(range(len(self.nextChord.instDict[instKey].diatonicListVal)), key=lambda i: abs(self.nextChord.instDict[instKey].diatonicListVal[i]-previousPartVal))
                     previousPartNum = self.nextChord.instDict[instKey].diatonicListNum[previousPartIdx]
                     meloNum = self.motPeriod[iMot]
+                    print(meloNum)
                     dNum = meloNum - previousPartNum
                     if dNum < -self.diatTol:
                         dNum = 7 + dNum
@@ -159,23 +274,25 @@ class Period(object):
                         dNum = dNum - 7
                     tempNewVal = self.nextChord.instDict[instKey].diatonicListVal[previousPartIdx + dNum]
                     tempNewIdx = self.nextChord.instDict[instKey].diatonicListVal.index(tempNewVal)
+                    print(tempNewVal)
                     dChordValFC = tempNewVal - self.progVal[instKey][0] 
+                    self.progVal[instKey].append(tempNewVal)
+                    self.progKey[instKey].append(findKey(self.nextChord.instDict[instKey].grandStaff,tempNewVal))
                     self.progNum[instKey].append(self.nextChord.instDict[instKey].diatonicListNum[previousPartIdx + dNum])
-                    self.progVal[instKey].append(self.nextChord.instDict[instKey].diatonicListVal[previousPartIdx + dNum])
+
                 bCtr += self.rytPeriod[iMot]
         
     def createAntecedentConsequent(self):
         self.motifLength = int(self.measures/2)
         self.antChord = self.chordProg[0:self.motifLength]
         self.conChord = self.chordProg[self.motifLength-1:]
-        
         print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nCreating motif for antecedent...')
-        ant = Motif(self.beatsPerChord,self.motifLength,self.timeMeter,self.tonality,self.instDict, self.antChord)
+        ant = Motif(self.beatsPerChord,self.motifLength,self.timeMeter,self.tonality,self.instDict, self.antChord, self.diatTol)
         self.ant = ant
         self.ant.createMotifFromChords()
         
         print('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\nCreating motif for consequent...')
-        cons = Motif(self.beatsPerChord,self.motifLength,self.timeMeter,self.tonality,self.instDict, self.antChord, ant)
+        cons = Motif(self.beatsPerChord,self.motifLength,self.timeMeter,self.tonality,self.instDict, self.conChord, self.diatTol, ant)
         self.cons = cons
         self.cons.createConsMotif()
         
