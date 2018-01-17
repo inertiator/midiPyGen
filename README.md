@@ -17,7 +17,7 @@ Different genres of music use different flavors of these parts. A 16th century c
 
 ## Current Features
 1) Creation of a multi-part harmony (1 chord per measure) with a chosen chord progression (or 'cadence')
-2) Genetic Algorithm method to minimize diatonic jumps between chords and instruments
+2) Genetic Algorithm method to minimize diatonic jumps between chords and melodies
 3) Simple but very powerful method to represent chords and can represent most chord progressions.
    -  Triad Chords (e.g. Key of C, Chord '2' is D minor)
    -  Seventh Chords based on diatonics (e.g. Key of C, Chord '5S' is G7, but Chord '4S' is Fmaj7)
@@ -26,7 +26,8 @@ Different genres of music use different flavors of these parts. A 16th century c
       -  Borrowed chords are always sevenths, unless chord is diatonic 4
       -  Seventh chords are only used in ensembles > 3 + bass
 4) Scalable harmony creation method, can be applied to different ensemble sizes (create with Ensemble.py, minimum of 3 + bass instruments)
-5) Able to vary Key Signature, Tonality (Major/Minor), and Tempo
+5) Scalable melody+harmony creation method, can be applied to different ensemble sizes, and can select any instrument for solo melody generation (Note: For use with ABA format chord progressions only for now)
+6) Able to vary Key Signature, Tonality (Major/Minor), and Tempo
 
 ## How to Run
 runMidiPyGen.py should be the only input needed to run.

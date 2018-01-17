@@ -28,14 +28,6 @@ class ChordProgression(object):
                 self.inv.append(None)
     
     def checkForCadence(self):
-        if self.cadence == 'Plagal':
-            self.prog = ['4','1']
-            self.inv = ['4/6',None]
-        if self.cadence == 'Deceptive':
-            self.prog = ['5','6']
-        if self.cadence == 'CanonX2':
-            #Prefer Major Key
-            self.prog = ['1','5','6','3','4','1','4','5','1','5','6','3','4','1','4','5','1']
         if self.cadence == 'Radioactive':
             #Prefer Minor Key
             self.prog = ['1','3','7','7B5']
@@ -44,10 +36,6 @@ class ChordProgression(object):
             #Prefer Major Key
             self.prog = ['1','5B5','4','1']
             self.prog = 6*self.prog
-        if self.cadence == 'Blues':
-            #Prefer Major Key
-            self.prog = ['5B4','5B4B4','5B4','5B4B4']
-            self.prog = 4*self.prog
         if self.cadence == 'BluesTestABA':
             #Prefer Major Key
             self.prog = []
@@ -61,10 +49,15 @@ class ChordProgression(object):
         if self.cadence == 'Funky':
             #Prefer Minor Key
             self.prog = ['1S','7B5']
-            self.prog = 12*self.prog  
+            self.prog = 12*self.prog
+        #Following are not compatible for mode = 'melody'
         if self.cadence == 'Ending':
             #Prefer Major Key
             self.prog = ['1','5B4','4','4B4B4B4','4B4','1']
+        if self.cadence == 'Canon':
+            #Prefer Major Key
+            self.prog = ['1','5','6','3','4','1','4','5']
+            self.prog = 3*self.prog
 
     def loopDiatonic(self,i):
         if i > 7:
