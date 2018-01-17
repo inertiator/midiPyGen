@@ -21,13 +21,11 @@ class MidiPyGen(MIDIFile):
         self.outputLocation = 'OutputMIDI' + '\\' + title + '.mid'
         self.song = song
         self.initializteMIDIFile()
-        self.setTracks()
         self.setInitialTempo()
-        self.setProgramChanges()
         
     def initializteMIDIFile(self):
         numTracks = len(self.song.ensemble.instrumentList)
-        super(MidiPyGen,self).__init__(numTracks=numTracks, adjust_origin=True, file_format=2)
+        super(MidiPyGen,self).__init__(numTracks=numTracks, adjust_origin=True, file_format=1)
         
     def setTracks(self, time=0):
         for track,inst in enumerate(self.song.ensemble.instrumentList):
@@ -41,22 +39,25 @@ class MidiPyGen(MIDIFile):
         for track,instKey in enumerate(self.song.instDict):
             program = self.song.instDict[instKey].program
             #TO DO: IMPLEMENT DIFFERENT CHANNELS
-            channel = 0
+            channel = track
             super(MidiPyGen,self).addProgramChange(track,channel,time,program)
     
     def runCode(self):
         for track,instKey in enumerate(self.song.instDict):
+            program = self.song.instDict[instKey].program
+            super(MidiPyGen,self).addTrackName(track,0,instKey)
+            super(MidiPyGen,self).addProgramChange(track,track,0,program)
+
             for iT,time in enumerate(self.song.instDict[instKey].timeArr):
+                print(track)
                 print(instKey)
-                print(iT)
                 print(time)
                 pitch = self.song.instDict[instKey].pitchArr[iT]
                 duration = self.song.instDict[instKey].durArr[iT]
                 velocity = self.song.instDict[instKey].velArr[iT]
-                channel = self.song.instDict[instKey].chArr[iT]
-                program = self.song.instDict[instKey].program
-                super(MidiPyGen,self).addProgramChange(track,channel,time,program)
+                channel = track
                 super(MidiPyGen,self).addNote(track,channel,pitch,time,duration,velocity)
+
         
     def writeMidiFile(self):
         midiBinFile = open(self.outputLocation,'wb')

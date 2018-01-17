@@ -9,7 +9,7 @@ from BaseClasses.Ensemble import Ensemble
 ###############################
 #If it breaks, try running it again. The nature of the randomized genetic algorithm can yield a better result.
 
-date = '1_10_2018'
+date = '1_15_2018'
 keySig = 'A'
 tonalMode = 'Minor'
 tonal = Tonality(keySig,tonalMode)
@@ -18,7 +18,7 @@ numBeats = 4
 #beat: Time signature beat note, 4 means quarter note
 beat = 4
 #Tempo in beats per minute
-tempo = 135
+tempo = 120
 
 timeMeter = TimeMeter(numBeatsPerMeasure = numBeats, beat = beat, tempo = tempo)
 

@@ -40,12 +40,10 @@ class ChordProgression(object):
             #Prefer Minor Key
             self.prog = ['1','3','7','7B5']
             self.prog = 6*self.prog
-            self.prog.append('1')
         if self.cadence == 'ForgetYou':
             #Prefer Major Key
             self.prog = ['1','5B5','4','1']
             self.prog = 6*self.prog
-            self.prog.append('1')
         if self.cadence == 'Blues':
             #Prefer Major Key
             self.prog = ['5B4','5B4B4','5B4','5B4B4']
@@ -56,16 +54,14 @@ class ChordProgression(object):
             self.a = ['5B4','5B4B4','5B4','5B4B4','5B4','5B4B4','5B4','5B4B4']
             self.b = ['4B4','5B4B4','4B4','5B4B4','4B4','5B5','5S','5S']
             self.prog = self.a + self.b + self.a
-            self.prog.append('1')  
         if self.cadence == 'Gymnopedie':
             #Prefer Major Key
             self.prog = ['4S','1S']
-            self.prog = 8*self.prog     
+            self.prog = 12*self.prog     
         if self.cadence == 'Funky':
             #Prefer Minor Key
             self.prog = ['1S','7B5']
             self.prog = 12*self.prog  
-            self.prog.append('1')
         if self.cadence == 'Ending':
             #Prefer Major Key
             self.prog = ['1','5B4','4','4B4B4B4','4B4','1']

@@ -98,7 +98,7 @@ class Motif(object):
         for i,ryt in enumerate(self.rytTot):
             if (sum(self.rytTot) - bCtr) == self.beatsPerChord:
                 self.motTot[i] = self.motTot[i]
-                self.rytTot[i] = 4
+                self.rytTot[i] = self.beatsPerChord
                 endIdx = i
                 break
             bCtr += ryt
@@ -300,6 +300,9 @@ class Period(object):
         self.rytPeriod = self.ant.rytTot + self.cons.rytTot
         self.dTime = self.rytPeriod
         self.fillMelodyVals()
+        
+    def generateAccompinament(self):
+        pass
         
             
         

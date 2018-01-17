@@ -101,7 +101,7 @@ class Song(object):
                 
         print('\nWorking on melody part now...')
         #Split total length into 3 parts
-        measuresPerForm = int((measures-1)/3)
+        measuresPerForm = int((measures)/3)
         motifTot = {}
         formList = ['A','B','A']
         measureCtr = 0
@@ -130,7 +130,7 @@ class Song(object):
                 periodProg = chordProg.prog[measureCtr:measuresPerForm+measureCtr]
                 print(periodProg)
                 print(measureCtr)
-                beatsPerChord = 4
+                beatsPerChord = duration
                 partPeriod = Period(beatsPerChord, self.timeMeter, self.tonality, periodProg, measuresPerForm, self.melodyDict)
                 partPeriod.createAntecedentConsequent()
                 motifTot[form] = deepcopy(partPeriod)
